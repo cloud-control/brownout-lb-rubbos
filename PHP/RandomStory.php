@@ -22,16 +22,7 @@ function display_follow_up($cid, $level, $display, $filter, $link, $comment_tabl
     $startTime = getMicroTime();
 
     // Check parameters
-    $storyId = $_POST['storyId'];
-    if ($storyId == null)
-    {
-      $storyId = $_GET['storyId'];
-      if ($storyId == null)
-      {
-         printError($scriptName, $startTime, "Viewing story", "You must provide a story identifier!<br>");
-         exit();
-      }
-    }
+    $storyId = rand(0, 6000);
       
     getDatabaseLink($link);
     $result = mysql_query("SELECT * FROM stories WHERE id=$storyId") or die("ERROR: Query failed");
