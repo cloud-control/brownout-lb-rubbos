@@ -87,6 +87,16 @@ function display_follow_up($cid, $level, $display, $filter, $link, $comment_tabl
     $display = 1;
     $filter = 0;
 
+    // Simple recommender system
+	$recommenderValve = doubleval(file_get_contents("recommenderValve"));
+
+	$r = rand(0, 9999) / 10000;
+	if ($r >= $recommenderValve) {
+		echo "Comments are temporarily disabled";
+	}
+	else {
+		echo chr(128);
+
     // Display the comments
     $comment = mysql_query("SELECT * FROM $comment_table WHERE story_id=$storyId AND parent=0 AND rating>=$filter", $link) or die("ERROR: Query failed");
     while ($comment_row = mysql_fetch_array($comment))
@@ -102,6 +112,7 @@ function display_follow_up($cid, $level, $display, $filter, $link, $comment_tabl
       if ($comment_row["childs"] > 0)
         display_follow_up($comment_row[id], 1, $display, $filter, $link, $comment_table);
     }
+	}
 
     mysql_free_result($result);
     mysql_close($link);
