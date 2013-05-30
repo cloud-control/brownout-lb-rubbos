@@ -21,9 +21,15 @@ def execute_controller(ctl_type, average_partial_service_times, set_point, ctl_p
 	# control algorithm mm
 	if ctl_type == 1:
 		c_est = average_partial_service_times / ctl_probability # very rough estimate
+		# NOTE: control knob allowing to smooth service times
+		# To enable this, you *must* add a new state variable (c_est) to the controller.
+		#c_est = 0.5 * c_est + 0.5 * average_partial_service_times / ctl_probability # very rough estimate
 		pole = 0.9
 		safety_margin = 0.01
 		error = (set_point - safety_margin) - average_partial_service_times
+		# NOTE: control knob allowing slow increase
+		#if error > 0:
+		#	error *= 0.01
 		ctl_probability = ctl_probability + (1/c_est) * (1 - pole) * error
 
 	# control algorithm ck
