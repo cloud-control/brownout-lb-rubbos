@@ -3,6 +3,7 @@ from __future__ import print_function, division
 
 import datetime
 import logging
+from math import ceil
 import os
 import select
 import socket
@@ -90,19 +91,21 @@ def main():
 	poll = select.poll()
 	poll.register(s, select.POLLIN)
 	lastControl = now()
+	lastTotalRequests = 0
 	timestampedLatencies = [] # tuples of timestamp, latency
 	totalRequests = 0
 	probability = 0.5
 	while True: # controller never dies
-		waitFor = (CONTROL_INTERVAL - (now() - lastControl)) * 1000
-
+		waitFor = max(ceil((lastControl + CONTROL_INTERVAL - now()) * 1000), 1)
 		events = poll.poll(waitFor)
+
+		_now = now() # i.e., all following operations are "atomic" with respect to time
 		if events:
-			data, address = s.recvfrom(4096)
-			timestampedLatencies.append((now(), float(data)))
+			data, address = s.recvfrom(4096, socket.MSG_DONTWAIT)
+			timestampedLatencies.append((_now, float(data)))
 			totalRequests += 1
-		if now() - lastControl > CONTROL_INTERVAL:
-			timestampedLatencies = [ (t, l) for t, l in timestampedLatencies if t > now() - MEASURE_INTERVAL ]
+		if _now - lastControl >= CONTROL_INTERVAL:
+			timestampedLatencies = [ (t, l) for t, l in timestampedLatencies if t > _now - MEASURE_INTERVAL ]
 			latencies = [ l for t,l in timestampedLatencies ]
 			if latencies:
 				probability = execute_controller(
@@ -120,7 +123,7 @@ def main():
 					latencyStat[3] * 1000,
 					latencyStat[4] * 1000,
 					latencyStat[5] * 1000,
-					len(latencies)/(now()-lastControl),
+					(totalRequests - lastTotalRequests) / (_now-lastControl),
 					probability * 100,
 					totalRequests
 				))
@@ -129,8 +132,8 @@ def main():
 				os.rename('recommenderValve.tmp', 'recommenderValve')
 			else:
 				logging.info("No traffic since last control interval.")
-			lastControl = now()
-			latencies = []
+			lastControl = _now
+			lastTotalRequests = totalRequests
 	s.close()
 
 if __name__ == "__main__":
