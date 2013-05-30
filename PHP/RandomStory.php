@@ -45,6 +45,16 @@ function display_follow_up($cid, $level, $display, $filter, $link, $comment_tabl
     print($row["body"]."<br>\n");
       print("<p><center><a href=\"/PHP/PostComment.php?comment_table=$comment_table&storyId=$storyId&parent=0\">Post a comment on this story</a></center><p>");
 
+    // Simple recommender system
+	$recommenderValve = doubleval(file_get_contents("/tmp/recommenderValve"));
+
+	$r = rand(0, 9999) / 10000;
+	if ($r >= $recommenderValve) {
+		echo "Comments are temporarily disabled";
+	}
+	else {
+		echo chr(128);
+
     // Display filter chooser header
     print("<br><hr><br>");
     print("<center><form action=\"/PHP/ViewComment.php\" method=POST>\n".
@@ -86,16 +96,6 @@ function display_follow_up($cid, $level, $display, $filter, $link, $comment_tabl
           "</SELECT>&nbsp&nbsp&nbsp&nbsp<input type=submit value=\"Refresh display\"></center><p>\n");          
     $display = 1;
     $filter = 0;
-
-    // Simple recommender system
-	$recommenderValve = doubleval(file_get_contents("recommenderValve"));
-
-	$r = rand(0, 9999) / 10000;
-	if ($r >= $recommenderValve) {
-		echo "Comments are temporarily disabled";
-	}
-	else {
-		echo chr(128);
 
     // Display the comments
     $comment = mysql_query("SELECT * FROM $comment_table WHERE story_id=$storyId AND parent=0 AND rating>=$filter", $link) or die("ERROR: Query failed");
