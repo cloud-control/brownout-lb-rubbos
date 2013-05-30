@@ -127,9 +127,9 @@ def main():
 					probability * 100,
 					totalRequests
 				))
-				with open('recommenderValve.tmp', 'w') as f:
+				with open('/tmp/recommenderValve.tmp', 'w') as f:
 					print(probability, file = f)
-				os.rename('recommenderValve.tmp', 'recommenderValve')
+				os.rename('/tmp/recommenderValve.tmp', '/tmp/recommenderValve')
 			else:
 				logging.info("No traffic since last control interval.")
 			lastControl = _now
