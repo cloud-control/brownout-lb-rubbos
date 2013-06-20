@@ -70,7 +70,7 @@ function display_follow_up($cid, $level, $display, $filter, $link, $comment_tabl
           "SELECT ".
             "c2.story_id as id,".
             "count(c2.story_id) as popularity,".
-            "c2.date as date".
+            "c2.date as date ".
           "FROM ".
             "comments AS c ".
             "LEFT JOIN comments AS c2 ON (c.writer=c2.writer) ".
