@@ -68,13 +68,15 @@ function display_follow_up($cid, $level, $display, $filter, $link, $comment_tabl
         // Step 1: retrieve story IDs, ordered by popularity, top 5
         $recommenderIdsQuery =
           "SELECT ".
-            "c2.story_id, count(c2.story_id) as popularity, c2.date ".
+            "c2.story_id as id,".
+            "count(c2.story_id) as popularity,".
+            "c2.date as date".
           "FROM ".
             "comments AS c ".
             "LEFT JOIN comments AS c2 ON (c.writer=c2.writer) ".
           "WHERE c.story_id=".$storyId. " AND c2.story_id!=".$storyId." ".
-          "GROUP BY c2.story_id ".
-          "ORDER BY popularity DESC, c2.date DESC LIMIT 5;" ;
+          "GROUP BY id ".
+          "ORDER BY popularity DESC, date DESC LIMIT 5;" ;
         //echo $recommenderIdsQuery; // For debugging
         $recommenderIdsResult = mysql_query($recommenderIdsQuery, $link);
         $ids = array();
