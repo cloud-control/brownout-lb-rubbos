@@ -83,6 +83,7 @@ function display_follow_up($cid, $level, $display, $filter, $link, $comment_tabl
         $ids = array();
         while ($row = mysql_fetch_array($recommenderIdsResult))
           array_push($ids, $row["id"]);
+        array_push($ids, 0); // Make sure at least one item is recommended
         mysql_free_result($recommenderIdsResult);
 
         // Step 2: get all information about the stories and display them
