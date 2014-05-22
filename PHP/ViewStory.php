@@ -2,6 +2,15 @@
 <html>
   <body>
     <?php
+	/* Get dimmer from file */
+	$serviceLevel = doubleval(@file_get_contents("/tmp/serviceLevel"));
+	header("X-Dimmer: $serviceLevel");
+	$r = rand(0, 9999) / 10000;
+	$withOptional = ($r < $serviceLevel);
+	header("X-WithOptional: $withOptional");
+	$r2 = rand(0, 9999) / 10000;
+	$withOptional2 = ($r < $serviceLevel) && ($r2 < $serviceLevel);
+	header("X-WithOptional2: $withOptional2");
 
 // Display the nested comments
 function display_follow_up($cid, $level, $display, $filter, $link, $comment_table)
@@ -50,18 +59,10 @@ function display_follow_up($cid, $level, $display, $filter, $link, $comment_tabl
     print($row["body"]."<br>\n");
       print("<p><center><a href=\"/PHP/PostComment.php?comment_table=$comment_table&storyId=$storyId&parent=0\">Post a comment on this story</a></center><p>");
 
-    // Retrieve service level
-    $serviceLevel = doubleval(@file_get_contents("/tmp/serviceLevel"));
-
-    // Optional code 1: comments
-    $r = rand(0, 9999) / 10000;
-    if ($r < $serviceLevel)
-    {
-      echo chr(128); // Special marker for httpmon
+	// NOTE: this code section has not been reindented, to minimize "diff" output.
 
       // Optional code 2: recommender system
-      $r = rand(0, 9999) / 10000;
-      if ($r < $serviceLevel) {
+      if ($withOptional2) {
         echo chr(129); // Special marker for httpmon
 
         // Due to bad optimizing in MySQL, we need to do this in two steps
@@ -98,7 +99,10 @@ function display_follow_up($cid, $level, $display, $filter, $link, $comment_tabl
         mysql_free_result($recommenderResult);
       }
 
-	// NOTE: this code section has not been reindented, to minimize "diff" output.
+    // Optional code 1: comments
+    if ($withOptional)
+    {
+      echo chr(128); // Special marker for httpmon
 
     // Display filter chooser header
     print("<br><hr><br>");
